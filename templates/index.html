@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Felps Investimento</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <h1>Painel Felps Investimento</h1>
+  <div class="painel">
+    <label>Selecionar Conta:</label>
+    <select id="conta" onchange="trocarConta()">
+      <option value="conta1">Conta 1</option>
+      <option value="conta2">Conta 2</option>
+      <option value="conta3">Conta 3</option>
+    </select>
+
+    <label>API Key:</label>
+    <input id="api" type="text" placeholder="Chave API da NovaDAX" />
+
+    <label>Valor de Entrada (R$):</label>
+    <input id="valor" type="number" />
+
+    <div class="botoes-modo">
+      <button onclick="selecionarModo('leve')">Modo Leve</button>
+      <button onclick="selecionarModo('moderado')">Moderado</button>
+      <button onclick="selecionarModo('agressivo')">Agressivo</button>
+      <button onclick="selecionarModo('auto')">Auto</button>
+    </div>
+
+    <button onclick="salvarDados()">Salvar Configurações</button>
+  </div>
+
+  <h2>🧠 200 IAs Monitorando o Mercado</h2>
+  <div id="ia-grid"></div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

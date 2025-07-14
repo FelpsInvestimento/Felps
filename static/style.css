@@ -1,0 +1,47 @@
+body {
+  background-color: #0e1117;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+input, select {
+  margin: 5px 0;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+}
+
+button {
+  margin: 5px;
+  padding: 10px;
+  border-radius: 5px;
+  background: #1f6feb;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2656c6;
+}
+
+.painel {
+  background: #161b22;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+#ia-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.ia-card {
+  background: #30363d;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
