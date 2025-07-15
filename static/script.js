@@ -1,55 +1,42 @@
-function getContaSelecionada() {
-  return document.getElementById("conta").value;
+
+function toggleVisibility(id) {
+  const input = document.getElementById(id);
+  input.type = input.type === "password" ? "text" : "password";
 }
 
-function salvarDados() {
-  const conta = getContaSelecionada();
-  const api = document.getElementById("api").value;
-  const valor = document.getElementById("valor").value;
-  const modo = localStorage.getItem(`modo_${conta}`) || "leve";
+function salvarConfiguracoes() {
+  const dados = {
+    conta: document.getElementById("conta").value,
+    accessKey: document.getElementById("accessKey").value,
+    secretKey: document.getElementById("secretKey").value,
+    valor: document.getElementById("valor").value,
+    modo: document.querySelector('input[name="modo"]:checked')?.value
+  };
 
-  localStorage.setItem(`api_${conta}`, api);
-  localStorage.setItem(`valor_${conta}`, valor);
-  localStorage.setItem(`modo_${conta}`, modo);
+  fetch("/salvar-config", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(dados)
+  })
+    .then(res => res.json())
+    .then(res => {
+      alert("✅ Configurações salvas com sucesso!");
+      console.log(res);
+    })
+    .catch(err => {
+      alert("Erro ao salvar configurações.");
+      console.error(err);
+    });
 }
 
-function carregarDados() {
-  const conta = getContaSelecionada();
-  document.getElementById("api").value = localStorage.getItem(`api_${conta}`) || "";
-  document.getElementById("valor").value = localStorage.getItem(`valor_${conta}`) || "";
-  const modo = localStorage.getItem(`modo_${conta}`) || "leve";
-  atualizarModoVisual(modo);
-}
-
-function trocarConta() {
-  carregarDados();
-}
-
-function selecionarModo(modo) {
-  const conta = getContaSelecionada();
-  localStorage.setItem(`modo_${conta}`, modo);
-  atualizarModoVisual(modo);
-  salvarDados();
-}
-
-function atualizarModoVisual(modo) {
-  const botoes = document.querySelectorAll(".botoes-modo button");
-  botoes.forEach(btn => {
-    btn.style.border = btn.textContent.toLowerCase() === modo ? "2px solid #58a6ff" : "none";
-  });
-}
-
-function gerarIAs() {
-  const grid = document.getElementById("ia-grid");
+window.onload = () => {
+  const container = document.getElementById("ias");
   for (let i = 1; i <= 200; i++) {
-    const card = document.createElement("div");
-    card.className = "ia-card";
-    card.textContent = `IA ${i}`;
-    grid.appendChild(card);
+    const ia = document.createElement("div");
+    ia.className = "ia";
+    ia.innerText = `IA ${i}`;
+    container.appendChild(ia);
   }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  carregarDados();
-  gerarIAs();
-});
+};
