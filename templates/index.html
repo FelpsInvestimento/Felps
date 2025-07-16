@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Felps Investimento</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <script src="/static/script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Painel Felps Investimento</h1>
+
+        <form id="configForm" method="POST">
+            <label for="conta">Selecionar Conta:</label>
+            <select id="conta" name="conta">
+                <option>Conta 1</option>
+                <option>Conta 2</option>
+                <option>Conta 3</option>
+                <option>Conta 4</option>
+                <option>Conta 5</option>
+            </select>
+
+            <label for="accessKey">Access Key:</label>
+            <div class="api-key">
+                <input type="password" id="accessKey" name="accessKey" required>
+                <button type="button" onclick="toggleVisibility('accessKey')">👁️</button>
+            </div>
+
+            <label for="secretKey">Secret Key:</label>
+            <div class="api-key">
+                <input type="password" id="secretKey" name="secretKey" required>
+                <button type="button" onclick="toggleVisibility('secretKey')">👁️</button>
+            </div>
+
+            <label for="valor">Valor de Entrada (R$):</label>
+            <input type="number" id="valor" name="valor" min="10" value="100" required>
+
+            <label>Modo:</label>
+            <div class="modo-op">
+                <input type="radio" name="modo" value="leve" id="leve"><label for="leve">Leve</label>
+                <input type="radio" name="modo" value="moderado" id="moderado"><label for="moderado">Moderado</label>
+                <input type="radio" name="modo" value="agressivo" id="agressivo"><label for="agressivo">Agressivo</label>
+                <input type="radio" name="modo" value="auto" id="auto" checked><label for="auto">Auto</label>
+            </div>
+
+            <button type="submit">Salvar Configurações</button>
+        </form>
+
+        <div id="statusApi" class="status-box">
+            🔌 Status da API: <span id="apiStatus">Verificando...</span>
+        </div>
+
+        <div class="ia-status">
+            <h2>🤖 200 IAs Monitorando o Mercado <span class="badge">Ativas</span></h2>
+            <button onclick="toggleIAs()">Mostrar/Ocultar IAs</button>
+            <div id="listaIAs" style="display:none;">
+                <div class="ias">
+                    <!-- Geração das 200 IAs -->
+                    <script>
+                        for (let i = 1; i <= 200; i++) {
+                            document.write(`<span class='ia'>IA ${i}</span>`);
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <div class="relatorio">
+            <h2>📈 Relatórios & Lucros</h2>
+            <canvas id="graficoLucro"></canvas>
+        </div>
+
+        <div class="logs">
+            <h2>📋 Logs das Operações</h2>
+            <div id="logOperacoes" class="log-box">
+                <p>Iniciando monitoramento com 200 IAs em modo Auto...</p>
+            </div>
+        </div>
+
+        <div class="supervisora">
+            <h2>🧠 IA Supervisora</h2>
+            <p>Status: <span id="statusSupervisora">Monitorando riscos, tudo seguro.</span></p>
+        </div>
+    </div>
+</body>
+</html>
