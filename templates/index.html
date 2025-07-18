@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Felps Investimento</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="/static/script.js" defer></script>
+</head>
+<body>
+  <h1>✅ Felps Investimento - Painel</h1>
+
+  <h2>🔐 Chaves API (NovaDAX)</h2>
+  <input type="password" id="access" placeholder="Access Key" />
+  <button onclick="toggleVisibility('access')">👁️</button><br />
+  <input type="password" id="secret" placeholder="Secret Key" />
+  <button onclick="toggleVisibility('secret')">👁️</button><br />
+  <button onclick="saveKeys()">Salvar</button>
+
+  <h2>⚙️ Modos de Operação</h2>
+  <select id="modo">
+    <option>Leve</option>
+    <option>Moderado</option>
+    <option>Agressivo</option>
+    <option selected>Automático</option>
+  </select>
+
+  <h2>📡 Status da Conexão</h2>
+  <div id="status">Carregando...</div>
+
+  <script>
+    function saveKeys() {
+      const access = document.getElementById("access").value;
+      const secret = document.getElementById("secret").value;
+      fetch("/api/save_keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access, secret }),
+      }).then((res) => alert("Chaves salvas com sucesso!"));
+    }
+
+    function updateStatus() {
+      fetch("/api/status")
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("status").innerHTML = `
+            <p><b>IAs operando:</b> ${data.ias_operando ? '✅ Sim' : '❌ Não'}</p>
+            <p><b>Conexão NovaDAX:</b> ${data.conectado_novadax ? '🟢 Conectado' : '🔴 Desconectado'}</p>
+            <p><b>Modo:</b> ${data.modo_operacao}</p>
+            <p><b>Lucro total:</b> R$ ${data.lucro_total}</p>
+            <p><b>Perda total:</b> R$ ${data.perda_total}</p>
+            <p><b>Saldo disponível:</b> R$ ${data.saldo_disponivel}</p>
+          `;
+        });
+    }
+
+    updateStatus();
+    setInterval(updateStatus, 3000);
+  </script>
+</body>
+</html>
