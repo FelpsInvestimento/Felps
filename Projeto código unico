@@ -1,0 +1,912 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felps Investimento - Automação 24h</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00d4aa',
+                        secondary: '#ff2d75',
+                        dark: '#0f172a',
+                        light: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(0, 212, 170, 0.5);
+        }
+        .ai-card {
+            transition: all 0.3s ease;
+        }
+        .ai-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .mode-card {
+            transition: all 0.3s ease;
+        }
+        .mode-card:hover {
+            transform: scale(1.05);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 212, 170, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0); }
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background-color: #10b981;
+        }
+        .status-offline {
+            background-color: #ef4444;
+        }
+        .status-warning {
+            background-color: #f59e0b;
+        }
+        .progress-bar {
+            height: 4px;
+            background-color: #334155;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #00d4aa;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .terminal {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            font-family: 'Courier New', monospace;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.875rem;
+        }
+        .terminal-line {
+            margin-bottom: 0.25rem;
+        }
+        .terminal-error {
+            color: #f87171;
+        }
+        .terminal-success {
+            color: #34d399;
+        }
+        .terminal-warning {
+            color: #fbbf24;
+        }
+        .terminal-info {
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-green-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl">F</div>
+                <h1 class="text-2xl font-bold">Felps Investimento</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="relative">
+                    <button id="api-status" class="flex items-center space-x-2 bg-red-600 px-4 py-2 rounded-lg">
+                        <span class="status-indicator status-offline"></span>
+                        <span>Desconectado</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Dashboard Header -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-gray-400">Saldo Total</h3>
+                    <i class="fas fa-wallet text-green-500 text-2xl"></i>
+                </div>
+                <p class="text-3xl font-bold mt-2">R$ 0,00</p>
+                <p class="text-gray-400 mt-1">Aguardando conexão</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-gray-400">Lucro Hoje</h3>
+                    <i class="fas fa-chart-line text-blue-500 text-2xl"></i>
+                </div>
+                <p class="text-3xl font-bold mt-2">R$ 0,00</p>
+                <p class="text-gray-400 mt-1">Aguardando conexão</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-gray-400">Operações</h3>
+                    <i class="fas fa-exchange-alt text-yellow-500 text-2xl"></i>
+                </div>
+                <p class="text-3xl font-bold mt-2">0</p>
+                <p class="text-gray-400 mt-1">Nas últimas 24h</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-gray-400">IAs Ativas</h3>
+                    <i class="fas fa-robot text-purple-500 text-2xl"></i>
+                </div>
+                <p class="text-3xl font-bold mt-2">200/200</p>
+                <p class="text-green-500 mt-1">Todas operacionais</p>
+            </div>
+        </div>
+
+        <!-- Mode Selection -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-cogs mr-3 text-primary"></i> Modos de Operação
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="mode-card bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 text-center cursor-pointer border-2 border-blue-500 glow">
+                    <i class="fas fa-feather-alt text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Leve</h3>
+                    <p class="text-blue-200 mb-4">Baixo risco, retorno conservador</p>
+                    <div class="bg-blue-900 rounded-full px-4 py-1 text-sm inline-block">Ativo</div>
+                </div>
+                
+                <div class="mode-card bg-gradient-to-br from-green-600 to-green-800 rounded-2xl p-6 text-center cursor-pointer border-2 border-gray-700">
+                    <i class="fas fa-balance-scale text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Moderado</h3>
+                    <p class="text-green-200 mb-4">Equilíbrio entre risco e retorno</p>
+                    <div class="bg-gray-700 rounded-full px-4 py-1 text-sm inline-block">Inativo</div>
+                </div>
+                
+                <div class="mode-card bg-gradient-to-br from-yellow-600 to-yellow-800 rounded-2xl p-6 text-center cursor-pointer border-2 border-gray-700">
+                    <i class="fas fa-fire text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Agressivo</h3>
+                    <p class="text-yellow-200 mb-4">Alto risco, alto potencial de lucro</p>
+                    <div class="bg-gray-700 rounded-full px-4 py-1 text-sm inline-block">Inativo</div>
+                </div>
+                
+                <div class="mode-card bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl p-6 text-center cursor-pointer border-2 border-gray-700">
+                    <i class="fas fa-brain text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Automático</h3>
+                    <p class="text-purple-200 mb-4">IA escolhe o melhor modo em tempo real</p>
+                    <div class="bg-gray-700 rounded-full px-4 py-1 text-sm inline-block">Inativo</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Groups -->
+        <div class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-robot mr-3 text-primary"></i> Grupos de IAs Colaborativas
+                </h2>
+                <div class="flex space-x-2">
+                    <button class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition">Todos</button>
+                    <button class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition">Ativos</button>
+                    <button class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition">Alertas</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Group 1 -->
+                <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold">Análise Técnica</h3>
+                        <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">20 IAs</span>
+                    </div>
+                    <div class="space-y-3 max-h-60 overflow-y-auto scrollbar-hide">
+                        <div class="flex justify-between items-center">
+                            <span>IA_001 - Curto Prazo</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_002 - Médio Prazo</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_003 - Longo Prazo</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_013 - Padrões de Velas</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_042 - Candles de Reversão</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_041 - Cruzamento de Médias</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_018 - Indicadores Técnicos</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_021 - Especialista Fibonacci</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_022 - Bandas de Bollinger</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_023 - Médias Móveis</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_024 - Breakout</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_025 - Suporte/Resistência</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_040 - Divergência RSI</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_082 - MACD + RSI</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_083 - Multi-Timeframe</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_084 - Exaustão de Tendência</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_059 - Anti-Fake Breakout</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_066 - Divergência Clássica</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_067 - Indicadores Personalizados</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_047 - Retração Fibonacci</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <div class="flex justify-between text-sm">
+                            <span>Status:</span>
+                            <span class="text-green-500">Operacional</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Group 2 -->
+                <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold">Risco e Fraude</h3>
+                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">10 IAs</span>
+                    </div>
+                    <div class="space-y-3 max-h-60 overflow-y-auto scrollbar-hide">
+                        <div class="flex justify-between items-center">
+                            <span>IA_004 - Gestão de Risco</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_005 - Supervisora</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_008 - Detecção de Fraudes</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_009 - Manipulação</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_052 - Anti-Pânico</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_058 - Sinais Falsos</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_079 - Ruído do Mercado</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_080 - Evitar Ilíquidos</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_199 - Otimizador Avançado</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_200 - Protetora Final</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <div class="flex justify-between text-sm">
+                            <span>Status:</span>
+                            <span class="text-green-500">Operacional</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Group 3 -->
+                <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold">Sentimento</h3>
+                        <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">10 IAs</span>
+                    </div>
+                    <div class="space-y-3 max-h-60 overflow-y-auto scrollbar-hide">
+                        <div class="flex justify-between items-center">
+                            <span>IA_006 - Redes Sociais</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_007 - Notícias</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_096 - YouTube</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_055 - Validação Cruzada</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_053 - Notícias em Tempo Real</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_054 - Eventos Econômicos</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_091 - News Volume</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_095 - Ações Reativas</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_087 - Correlação Bitcoin</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_088 - Correlação Ouro</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <div class="flex justify-between text-sm">
+                            <span>Status:</span>
+                            <span class="text-green-500">Operacional</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Group 4 -->
+                <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold">Stops Inteligentes</h3>
+                        <span class="bg-purple-500 text-white text-xs px-2 py-1 rounded-full">20 IAs</span>
+                    </div>
+                    <div class="space-y-3 max-h-60 overflow-y-auto scrollbar-hide">
+                        <div class="flex justify-between items-center">
+                            <span>IA_076 - Stop Dinâmico</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_019 - Confirmação</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_020 - Saída Segura</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_130 - Proteção Emergencial</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_044 - Saídas Protegidas</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_045 - Lucro Parcial</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_069 - Entrada Agressiva</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_074 - Fuga de Canal</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_077 - Reentrada em Tendência</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_086 - Proteção em Queda</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_064 - Exposição Total</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_094 - Balanceamento</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_070 - Operações Paralelas</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_062 - Otimizador de Posição</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_065 - Confirmação Multiplataforma</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_078 - Validação de Tendência</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_085 - Alta Volatilidade</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_090 - Tendência Global</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_089 - Tendência de Setores</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>IA_060 - Long & Short</span>
+                            <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <div class="flex justify-between text-sm">
+                            <span>Status:</span>
+                            <span class="text-green-500">Operacional</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Operations -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-bolt mr-3 text-primary"></i> Operações em Tempo Real
+            </h2>
+            <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">Ativos sendo operados</h3>
+                    <div class="flex space-x-2">
+                        <button class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition">BTC</button>
+                        <button class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition">ETH</button>
+                        <button class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition">AAPL</button>
+                        <button class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition">Ouro</button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto scrollbar-hide">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-400 border-b border-gray-700">
+                                <th class="pb-3">Ativo</th>
+                                <th class="pb-3">IA Responsável</th>
+                                <th class="pb-3">Tipo</th>
+                                <th class="pb-3">Valor</th>
+                                <th class="pb-3">Lucro</th>
+                                <th class="pb-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-700 hover:bg-gray-750">
+                                <td class="py-4 font-medium">BTC/USDT</td>
+                                <td class="py-4">IA_015, IA_043</td>
+                                <td class="py-4"><span class="bg-green-900 text-green-400 px-2 py-1 rounded">Compra</span></td>
+                                <td class="py-4">$0.00</td>
+                                <td class="py-4 text-gray-400">0.0%</td>
+                                <td class="py-4"><span class="text-yellow-500">Aguardando</span></td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-750">
+                                <td class="py-4 font-medium">ETH/USDT</td>
+                                <td class="py-4">IA_063, IA_029</td>
+                                <td class="py-4"><span class="bg-red-900 text-red-400 px-2 py-1 rounded">Venda</span></td>
+                                <td class="py-4">$0.00</td>
+                                <td class="py-4 text-gray-400">0.0%</td>
+                                <td class="py-4"><span class="text-yellow-500">Aguardando</span></td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-750">
+                                <td class="py-4 font-medium">AAPL</td>
+                                <td class="py-4">IA_095, IA_089</td>
+                                <td class="py-4"><span class="bg-green-900 text-green-400 px-2 py-1 rounded">Compra</span></td>
+                                <td class="py-4">$0.00</td>
+                                <td class="py-4 text-gray-400">0.0%</td>
+                                <td class="py-4"><span class="text-yellow-500">Aguardando</span></td>
+                            </tr>
+                            <tr class="border-b border-gray-700 hover:bg-gray-750">
+                                <td class="py-4 font-medium">Ouro</td>
+                                <td class="py-4">IA_088, IA_187</td>
+                                <td class="py-4"><span class="bg-green-900 text-green-400 px-2 py-1 rounded">Compra</span></td>
+                                <td class="py-4">$0.00</td>
+                                <td class="py-4 text-gray-400">0.0%</td>
+                                <td class="py-4"><span class="text-yellow-500">Aguardando</span></td>
+                            </tr>
+                            <tr class="hover:bg-gray-750">
+                                <td class="py-4 font-medium">SOL/USDT</td>
+                                <td class="py-4">IA_071, IA_063</td>
+                                <td class="py-4"><span class="bg-green-900 text-green-400 px-2 py-1 rounded">Compra</span></td>
+                                <td class="py-4">$0.00</td>
+                                <td class="py-4 text-gray-400">0.0%</td>
+                                <td class="py-4"><span class="text-yellow-500">Aguardando</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Configuration -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-key mr-3 text-primary"></i> Configuração da API NovaDAX
+            </h2>
+            <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-400 mb-2">Access Key</label>
+                        <div class="relative">
+                            <input type="password" id="access-key" value="fb17caa1-00a5-45ad-800f-31dcff935376" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pr-12">
+                            <button class="absolute right-3 top-3 text-gray-400 hover:text-white" onclick="togglePassword('access-key')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-2">Secret Key</label>
+                        <div class="relative">
+                            <input type="password" id="secret-key" value="IDqP2LKyivmnBprsRQ8qzLt6oQPQNWGo" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pr-12">
+                            <button class="absolute right-3 top-3 text-gray-400 hover:text-white" onclick="togglePassword('secret-key')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex space-x-4">
+                    <button id="connect-btn" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-medium transition flex items-center">
+                        <i class="fas fa-plug mr-2"></i> Conectar com NovaDAX
+                    </button>
+                    <button id="test-connection" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition flex items-center">
+                        <i class="fas fa-bug mr-2"></i> Testar Conexão
+                    </button>
+                    <button class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-medium transition">
+                        Salvar Credenciais
+                    </button>
+                </div>
+                <div class="mt-4 p-4 bg-gray-900 rounded-lg">
+                    <div class="flex justify-between text-sm">
+                        <span>Última tentativa de conexão:</span>
+                        <span id="last-update">Nunca</span>
+                    </div>
+                    <div class="mt-2 text-sm text-red-400" id="connection-error"></div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span>Progresso da Conexão:</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Logs -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-terminal mr-3 text-primary"></i> Logs de Conexão
+            </h2>
+            <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                <div class="terminal" id="terminal">
+                    <div class="terminal-line terminal-info">[INFO] Sistema Felps Investimento iniciado</div>
+                    <div class="terminal-line terminal-info">[INFO] Aguardando configuração da API NovaDAX...</div>
+                </div>
+                <div class="mt-4 flex space-x-4">
+                    <button id="clear-logs" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition">
+                        Limpar Logs
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Motivational Quote -->
+        <div class="text-center py-8">
+            <blockquote class="text-2xl font-bold italic">
+                "Eu Quero, Eu Posso, Eu Consigo — JÁ DEU CERTO!"
+            </blockquote>
+            <p class="mt-2 text-gray-400">- Felps Investimento</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">F</div>
+                        <span class="text-xl font-bold">Felps Investimento</span>
+                    </div>
+                    <p class="mt-2 text-gray-400">Automação 24h com segurança máxima</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-telegram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-discord text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-gray-500 text-sm">
+                <p>© 2024 Felps Investimento. Todos os direitos reservados.</p>
+                <p class="mt-2">Sistema operando com 200 IAs colaborativas 24/7</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        });
+        
+        // Simulate real-time updates
+        setInterval(() => {
+            // Flash update indicator
+            const apiStatus = document.getElementById('api-status');
+            apiStatus.classList.add('pulse');
+            setTimeout(() => {
+                apiStatus.classList.remove('pulse');
+            }, 2000);
+        }, 10000);
+        
+        // Mode selection
+        const modeCards = document.querySelectorAll('.mode-card');
+        modeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                modeCards.forEach(c => {
+                    c.classList.remove('border-2', 'border-blue-500', 'glow');
+                    c.classList.add('border-2', 'border-gray-700');
+                    const status = c.querySelector('div:last-child');
+                    status.classList.remove('bg-blue-900');
+                    status.classList.add('bg-gray-700');
+                    status.textContent = 'Inativo';
+                });
+                
+                card.classList.remove('border-2', 'border-gray-700');
+                card.classList.add('border-2', 'border-blue-500', 'glow');
+                const status = card.querySelector('div:last-child');
+                status.classList.remove('bg-gray-700');
+                status.classList.add('bg-blue-900');
+                status.textContent = 'Ativo';
+            });
+        });
+        
+        // Password toggle
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling.querySelector('i');
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Terminal log functions
+        const terminal = document.getElementById('terminal');
+        
+        function addLog(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            
+            if (type === 'error') {
+                line.classList.add('terminal-error');
+            } else if (type === 'success') {
+                line.classList.add('terminal-success');
+            } else if (type === 'warning') {
+                line.classList.add('terminal-warning');
+            } else if (type === 'info') {
+                line.classList.add('terminal-info');
+            }
+            
+            const now = new Date();
+            line.textContent = `[${now.toLocaleTimeString()}] ${message}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        // API Connection Simulation with Progress
+        const connectBtn = document.getElementById('connect-btn');
+        const testConnectionBtn = document.getElementById('test-connection');
+        const lastUpdate = document.getElementById('last-update');
+        const connectionError = document.getElementById('connection-error');
+        const apiStatusBtn = document.getElementById('api-status');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const clearLogsBtn = document.getElementById('clear-logs');
+        
+        // Function to simulate API connection
+        function connectToNovaDAX() {
+            // Reset progress
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            
+            // Show connecting state
+            connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Conectando...';
+            connectBtn.disabled = true;
+            connectionError.textContent = '';
+            
+            addLog('Iniciando conexão com NovaDAX...', 'info');
+            
+            // Simulate connection process with progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `${progress}%`;
+                
+                if (progress === 20) {
+                    addLog('Validando credenciais...', 'info');
+                } else if (progress === 40) {
+                    addLog('Conectando ao servidor...', 'info');
+                } else if (progress === 60) {
+                    addLog('Autenticando...', 'info');
+                } else if (progress === 80) {
+                    addLog('Verificando permissões...', 'info');
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Simulate connection result
+                    setTimeout(() => {
+                        // Simulate connection failure
+                        connectBtn.innerHTML = '<i class="fas fa-plug mr-2"></i> Conectar com NovaDAX';
+                        connectBtn.disabled = false;
+                        
+                        // Update status
+                        apiStatusBtn.className = 'flex items-center space-x-2 bg-red-600 px-4 py-2 rounded-lg';
+                        apiStatusBtn.innerHTML = '<span class="status-indicator status-warning"></span><span>Erro de Conexão</span>';
+                        
+                        // Update last update time
+                        const now = new Date();
+                        lastUpdate.textContent = now.toLocaleString('pt-BR');
+                        
+                        // Show error message
+                        connectionError.textContent = 'Erro: Chave API inválida. Verifique suas credenciais.';
+                        addLog('Erro: Chave API inválida. Verifique suas credenciais.', 'error');
+                        addLog('Falha na conexão com NovaDAX', 'error');
+                        
+                        // Add detailed error analysis
+                        addLog('Análise de erro:', 'warning');
+                        addLog('- Verifique se as chaves API estão corretas', 'warning');
+                        addLog('- Confirme se a chave tem permissões de leitura', 'warning');
+                        addLog('- Verifique se a chave não expirou', 'warning');
+                        addLog('- Confirme se o IP está autorizado na NovaDAX', 'warning');
+                    }, 500);
+                }
+            }, 100);
+        }
+        
+        // Function to test connection
+        function testConnection() {
+            addLog('Testando conexão...', 'info');
+            addLog('Erro: Chave API inválida. Verifique suas credenciais.', 'error');
+            addLog('Análise detalhada:', 'warning');
+            addLog('1. Access Key: fb17caa1-00a5-45ad-800f-31dcff935376', 'info');
+            addLog('2. Secret Key: IDqP2LKyivmnBprsRQ8qzLt6oQPQNWGo', 'info');
+            addLog('3. Status: Chave inválida ou sem permissões', 'error');
+        }
+        
+        connectBtn.addEventListener('click', connectToNovaDAX);
+        testConnectionBtn.addEventListener('click', testConnection);
+        
+        clearLogsBtn.addEventListener('click', () => {
+            terminal.innerHTML = '';
+            addLog('Logs limpos', 'info');
+        });
+        
+        // Add initial logs
+        setTimeout(() => {
+            addLog('Sistema pronto para conexão', 'info');
+            addLog('Insira suas credenciais da NovaDAX e clique em "Conectar"', 'info');
+            addLog('Para testes, clique em "Testar Conexão"', 'info');
+        }, 1000);
+    </script>
+</body>
+</html>
+```
