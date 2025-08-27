@@ -1,16 +1,10 @@
-from flask import Flask
-from flask_cors import CORS
-from app.routes import api_bp
+from flask import Flask, jsonify
 
 app = Flask(__name__)
-CORS(app)  # Permitir CORS para todas as rotas
-app.register_blueprint(api_bp, url_prefix="/api")
 
-@app.route("/")
-def home():
-    return "Bem-vindo ao FELPS TRADE Backend!"
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"}), 200
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
 
 
