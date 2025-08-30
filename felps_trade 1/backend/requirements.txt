@@ -12,12 +12,9 @@ requests==2.32.3
 numpy==1.26.4
 pandas==2.2.2
 
-# Para Cython e builds nativos se necessário
-cython==3.0.5
-
-# Para operações assíncronas ou threads
+# Operações assíncronas ou threads
 aiohttp==3.9.9
 nest-asyncio==1.5.8
 
-# Outras dependências comuns
+# Variáveis de ambiente
 python-dotenv==1.0.0
