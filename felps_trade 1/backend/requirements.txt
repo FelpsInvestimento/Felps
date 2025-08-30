@@ -1,4 +1,9 @@
-# Web
+# Atualizadores de pacotes
+pip>=24.0
+setuptools>=70.0
+wheel>=0.43.0
+
+# Backend principal
 Flask==3.0.3
 gunicorn==22.0.0
 requests==2.32.3
@@ -10,9 +15,9 @@ pandas==2.2.2
 # Para Cython e builds nativos se necessário
 cython==3.0.5
 
-# Para operações assíncronas ou threads (opcional mas avançado)
+# Para operações assíncronas ou threads
 aiohttp==3.9.9
 nest-asyncio==1.5.8
 
-# Outras dependências comuns do seu projeto
+# Outras dependências comuns
 python-dotenv==1.0.0
